@@ -1,162 +1,106 @@
 #include <iostream>
 using namespace std;
  
-class Deque {
+class PizzaParlor {
 private:
-    int* arr;
-    int front, back, capacity;
+    int* queue;        // Array to store orders
+    int front, rear;   // Indices for front and rear of the queue
+    int capacity;      // Maximum number of orders the parlor can accept
+    int size;          // Current size of the queue
  
 public:
-    // Constructor to initialize deque with a given capacity
-    Deque(int cap) {
-        capacity = cap;
-        arr = new int[capacity];
-        front = -1;
-        back = -1;
+    // Constructor to initialize the queue
+    PizzaParlor(int maxOrders) {
+        capacity = maxOrders;
+        queue = new int[capacity];
+        front = rear = -1;
+        size = 0;
     }
  
-    // Destructor to free memory
-    ~Deque() {
-        delete[] arr;
+    // Destructor to free the memory
+    ~PizzaParlor() {
+        delete[] queue;
     }
  
-    // Function to check if the deque is empty
-    bool isEmpty() {
-        return front == -1;
-    }
- 
-    // Function to check if the deque is full
-    bool isFull() {
-        return (front == 0 && back == capacity - 1) || (front == back + 1);
-    }
- 
-    // Function to add element at the front
-    void addFront(int value) {
-        if (isFull()) {
-            cout << "Deque is full!" << endl;
-            return;
-        }
-        if (front == -1) { // If deque is empty
-            front = back = 0;
-        } else if (front == 0) {
-            front = capacity - 1; // Wrap around
+    // Function to place an order
+    void placeOrder(int orderNumber) {
+        if (size == capacity) {
+            cout << "Sorry, the parlor is full. Cannot accept more orders!" << endl;
         } else {
-            front--;
+            // Circularly add to the queue
+            if (front == -1) {
+                front = 0; // First order is placed
+            }
+            rear = (rear + 1) % capacity;
+            queue[rear] = orderNumber;
+            size++;
+            cout << "Order " << orderNumber << " placed successfully!" << endl;
         }
-        arr[front] = value;
-        cout << "Added " << value << " at the front." << endl;
     }
  
-    // Function to add element at the back
-    void addBack(int value) {
-        if (isFull()) {
-            cout << "Deque is full!" << endl;
-            return;
-        }
-        if (back == -1) { // If deque is empty
-            front = back = 0;
-        } else if (back == capacity - 1) {
-            back = 0; // Wrap around
+    // Function to serve an order
+    void serveOrder() {
+        if (size == 0) {
+            cout << "No orders to serve!" << endl;
         } else {
-            back++;
+            cout << "Serving Order " << queue[front] << endl;
+            front = (front + 1) % capacity; // Circularly move front
+            size--;
         }
-        arr[back] = value;
-        cout << "Added " << value << " at the back." << endl;
     }
  
-    // Function to delete element from the front
-    void deleteFront() {
-        if (isEmpty()) {
-            cout << "Deque is empty!" << endl;
-            return;
-        }
-        cout << "Deleted " << arr[front] << " from the front." << endl;
-        if (front == back) { // Only one element
-            front = back = -1;
-        } else if (front == capacity - 1) {
-            front = 0; // Wrap around
+    // Function to view the orders in the queue
+    void viewOrders() {
+        if (size == 0) {
+            cout << "No orders to view!" << endl;
         } else {
-            front++;
+            cout << "Orders in the queue: ";
+            int i = front;
+            for (int j = 0; j < size; j++) {
+                cout << queue[i] << " ";
+                i = (i + 1) % capacity;
+            }
+            cout << endl;
         }
-    }
- 
-    // Function to delete element from the back
-    void deleteBack() {
-        if (isEmpty()) {
-            cout << "Deque is empty!" << endl;
-            return;
-        }
-        cout << "Deleted " << arr[back] << " from the back." << endl;
-        if (front == back) { // Only one element
-            front = back = -1;
-        } else if (back == 0) {
-            back = capacity - 1; // Wrap around
-        } else {
-            back--;
-        }
-    }
- 
-    // Function to display elements in the deque
-    void display() {
-        if (isEmpty()) {
-            cout << "Deque is empty!" << endl;
-            return;
-        }
-        cout << "Deque elements: ";
-        int i = front;
-        while (i != back) {
-            cout << arr[i] << " ";
-            i = (i + 1) % capacity; // Wrap around
-        }
-        cout << arr[back] << endl;
     }
 };
  
 int main() {
-    int capacity, choice, value;
+    int maxOrders;
+    cout << "Enter the maximum number of orders the parlor can accept: ";
+    cin >> maxOrders;
  
-    cout << "Enter the capacity of the deque: ";
-    cin >> capacity;
+    PizzaParlor parlor(maxOrders);
+    int choice, orderNumber;
  
-    Deque dq(capacity);
- 
-    do {
-        cout << "\n1. Add element at front" << endl;
-        cout << "2. Add element at back" << endl;
-        cout << "3. Delete element from front" << endl;
-        cout << "4. Delete element from back" << endl;
-        cout << "5. Display deque" << endl;
-        cout << "6. Exit" << endl;
+    while (true) {
+        cout << "\nPizza Parlor Menu:\n";
+        cout << "1. Place an Order\n";
+        cout << "2. Serve an Order\n";
+        cout << "3. View Orders\n";
+        cout << "4. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
  
         switch (choice) {
             case 1:
-                cout << "Enter value to add at front: ";
-                cin >> value;
-                dq.addFront(value);
+                cout << "Enter Order Number: ";
+                cin >> orderNumber;
+                parlor.placeOrder(orderNumber);
                 break;
             case 2:
-                cout << "Enter value to add at back: ";
-                cin >> value;
-                dq.addBack(value);
+                parlor.serveOrder();
                 break;
             case 3:
-                dq.deleteFront();
+                parlor.viewOrders();
                 break;
             case 4:
-                dq.deleteBack();
-                break;
-            case 5:
-                dq.display();
-                break;
-            case 6:
-                cout << "Exiting..." << endl;
-                break;
+                cout << "Exiting the system...\n";
+                return 0;
             default:
-                cout << "Invalid choice! Please try again." << endl;
+                cout << "Invalid choice! Please try again.\n";
         }
-    } while (choice != 6);
+    }
  
     return 0;
 }
